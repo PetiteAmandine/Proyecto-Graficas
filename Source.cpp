@@ -9,7 +9,8 @@ void iniciar(void)
 	gluLookAt(0, 0, 0, 0, 0, 100, 0, 1, 0);
 }
 
-float angulo = 0;
+float angulo = 0, mover=350;
+char tecla;
 void Dibujo(void)
 {
 	glMatrixMode(GL_MODELVIEW);
@@ -51,19 +52,19 @@ void Dibujo(void)
 	float i = -500;
 	while (i < 250) {
 		glBegin(GL_QUADS);
-		glVertex3f(i, 500, 100.0);
-		glVertex3f(i, -500, 100.0);
-		glVertex3f(i - 5, -500, 100.0);
-		glVertex3f(i - 5, 500, 100.0);
+		glVertex3f(i, 500, 250.0);
+		glVertex3f(i, -500, 250.0);
+		glVertex3f(i - 5, -500, 250.0);
+		glVertex3f(i - 5, 500, 250.0);
 		glEnd();
 		i += 20;
 	}
 
 	glPushMatrix();
 	glColor3f(1, 0, 1);
-	glTranslated(-375, -375, 170);
+	glTranslated(-375, -375, mover);
 	glRotated(angulo / 3, 1, 1, 0);//Rota elipse
-	glutWireSphere(100, 30, 30);//Crea esfera
+	glutSolidSphere(100, 30, 30);//Crea esfera
 	glPopMatrix();
 
 	glPushMatrix();
@@ -87,8 +88,37 @@ void Dibujo(void)
 void actualiza() {
 	angulo += 5;
 	glutPostRedisplay();
+	mover -= .5;
+}
+
+void teclado(unsigned char tecla, int x, int y) {
+	switch (tecla)
+	{
+	case 'e':
+	case 'E':
+		tecla = 'E';
+		break;
 
 
+	case 'm':
+	case 'M':
+		tecla = 'M';
+		break;
+
+
+	case 'c':
+	case 'C':
+		tecla = 'M';
+		break;
+
+	case 'r':
+	case 'R':
+		tecla = 'M';
+		break;
+
+	case 27:
+		exit(0);
+		break;
 }
 
 //void winReshapeFcn(GLint newWidth, GLint newHeight)
@@ -112,8 +142,7 @@ void main(int argc, char** argv)
 	angulo = 45;
 	iniciar();
 	glutDisplayFunc(Dibujo);
-	/*glutMainLoop();*/
-
 	glutIdleFunc(actualiza);
+	glutKeyboardFunc(teclado);
 	glutMainLoop();
 }
