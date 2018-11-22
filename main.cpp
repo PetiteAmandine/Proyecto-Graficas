@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include "GL/glut.h"
 
-//Variables globales
 GLsizei winWidth = 1000, winHeight = 1000; // Initial display-window size.
 float angulo = 0, mover = 350;
 char tecla;
@@ -16,8 +15,22 @@ struct ColorPT {
 	ColorPT operator / (double c) const { return ColorPT(r / c, g / c, b / c); }
 };
 
+struct CoordPT {
+	double x, y, z;
+	CoordPT() {}
+	CoordPT(double a, double b, double c) : x(a), y(b), z(c) {}
+	CoordPT operator + (const CoordPT &p) const { return CoordPT(x + p.x, y + p.y, z + p.z); }
+	CoordPT operator - (const CoordPT &p) const { return CoordPT(x - p.x, y - p.y, z - p.z); }
+	CoordPT operator * (double c) const { return CoordPT(x*c, y*c, z*c); }
+	CoordPT operator / (double c) const { return CoordPT(x / c, y / c, z / c); }
+};
+
 ColorPT randomColor() {
 	return ColorPT(rand()%256/255, rand()%256/255, rand()%256/255);
+}
+
+CoordPT randomCoord() {
+	return CoordPT(rand() % 751 - 500, rand() % 751 - 500, rand() % 101);
 }
 
 void pintaBarras() {
@@ -34,41 +47,42 @@ void pintaBarras() {
 	}
 }
 
-void pintaEsfera(ColorPT c) {
+void pintaEsfera(ColorPT cl, CoordPT cd) {
 	glPushMatrix();
-	glColor3f(c.r, c.g, c.b);
-	int x = rand() % 1001 - 500;
-	int y = rand() % 1001 - 500;
-	int z = rand() % 101;
-	glTranslated(x, y, z);
-	glRotated(angulo / 3, 1, 1, 0);
+	glColor3f(cl.r, cl.g, cl.b);
+	glTranslated(cd.x, cd.y, cd.z);
+	//glRotated(angulo / 3, 1, 1, 0);
 	glutWireSphere(100, 30, 30);
 	glPopMatrix();
 }
 
-void pintaElipsoide(ColorPT c) {
+void pintaElipsoide(ColorPT cl, CoordPT cd) {
 	glPushMatrix();
-	glColor3f(c.r, c.g, c.b);
-	int x = rand() % 1001 - 500;
-	int y = rand() % 1001 - 500;
-	int z = rand() % 101;
-	glTranslated(x, y, z);
-	glRotated(angulo / 3, 1, 1, 0);
+	glColor3f(cl.r, cl.g, cl.b);
+	glTranslated(cd.x, cd.y, cd.z);
+	//glRotated(angulo / 3, 1, 1, 0);
 	glScalef(1.2, .9, .6);
 	glutWireSphere(100, 30, 30);
 	glPopMatrix();
 }
 
-void pintaCubo(ColorPT c) {
+void pintaCubo(ColorPT cl, CoordPT cd) {
 	glPushMatrix();
-	glColor3f(c.r, c.g, c.b);
-	int x = rand() % 1001 - 500;
-	int y = rand() % 1001 - 500;
-	int z = rand() % 101;
-	glTranslated(x, y, z);
-	glRotatef(-angulo / 2, 0, 1, 1);
+	glColor3f(cl.r, cl.g, cl.b);
+	glTranslated(cd.x, cd.y, cd.z);
+	//glRotatef(-angulo / 2, 0, 1, 1);
 	glutWireCube(125);
 	glPopMatrix();
+}
+
+void pintaBotones() {
+	ColorPT c = ColorPT(0, 0, 0);
+	CoordPT esf = CoordPT(375, 300, 10);
+	CoordPT cub = CoordPT(375, 0, 10);
+	CoordPT eli = CoordPT(375, -300, 10);
+	pintaEsfera(c, esf);
+	pintaCubo(c, cub);
+	pintaElipsoide(c, eli);
 }
 
 void iniciar(void)
@@ -82,14 +96,26 @@ void Dibujo(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-
 	glDepthFunc(GL_LESS);
 	pintaBarras();
-	ColorPT c;
-	c.r = 1;
-	c.g = 0;
-	c.b = 0;
-	pintaEsfera(c);
+	pintaBotones();
+	//Colores y coordenadas de ejemplo
+	ColorPT cl;
+	cl.r = 1;
+	cl.g = 0;
+	cl.b = 0;
+	CoordPT cd;
+	cd.x = 100;
+	cd.y = 100;
+	cd.z = 70;
+	pintaEsfera(cl, cd);
+	cl.r = 0;
+	cl.g = 1;
+	cl.b = 0;
+	cd.x = -300;
+	cd.y = 100;
+	cd.z = 170;
+	pintaElipsoide(cl, cd);
 	glutSwapBuffers();
 }
 
@@ -122,6 +148,7 @@ void teclado(unsigned char tecla, int x, int y) {
 		exit(0);
 		break;
 	}
+}
 
 void actualiza() {
 	angulo += 5;
