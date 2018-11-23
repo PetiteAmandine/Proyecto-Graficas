@@ -4,6 +4,12 @@
 GLsizei winWidth = 1000, winHeight = 1000; // Initial display-window size.
 float angulo = 0, mover = 350;
 char tecla;
+char e[] = "E        Escalar";
+char m[] = "M       Mover";
+char c[] = "C        Cambiar de color";
+char r[] = "R        Rotar";
+char t[] = "T        Transparente";
+char esc[] = "ESC    Salir";
 
 struct ColorPT {
 	double r, g, b;
@@ -33,18 +39,62 @@ CoordPT randomCoord() {
 	return CoordPT(rand() % 751 - 500, rand() % 751 - 500, rand() % 101);
 }
 
+void print(int x, int y, int z, char *string) {
+	//set the position of the text in the window
+	glRasterPos3f(x, y, z);
+	//get the length of the string to display
+	int len = (int)strlen(string);
+	//loop to display character by character
+	for (int i = 0; i < len; i++)
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+}
+
 void pintaBarras() {
 	glColor3f(0, 0, 0);
-	float i = -500;
-	while (i < 250) {
+	glBegin(GL_QUADS);
+	glVertex3f(250, 490, 400.0);
+	glVertex3f(250, -250, 400.0);
+	glVertex3f(-490, -250, 400.0);
+	glVertex3f(-490, 490, 400.0);
+	glColor3f(1, 1, 1);
+	glVertex3f(240, 480, 399.0);
+	glVertex3f(240, -240, 399.0);
+	glVertex3f(-480, -240, 399.0);
+	glVertex3f(-480, 480, 399.0);
+	glEnd();
+	glColor3f(0, 0, 0);
+	float i = -460;
+	while (i <= 230) {
 		glBegin(GL_QUADS);
-		glVertex3f(i, 500, 100.0);
-		glVertex3f(i, -500, 100.0);
-		glVertex3f(i - 5, -500, 100.0);
-		glVertex3f(i - 5, 500, 100.0);
+		glVertex3f(i, 490, 100.0);
+		glVertex3f(i, -250, 100.0);
+		glVertex3f(i - 10, -250, 100.0);
+		glVertex3f(i - 10, 490, 100.0);
 		glEnd();
-		i += 20;
+		i += 23;
 	}
+}
+
+void pintaCajaTexto() {
+	glColor3f(0, 0, 0);
+	glBegin(GL_QUADS);
+	glVertex3f(250, -450, 400.0);
+	glVertex3f(250, -300, 400.0);
+	glVertex3f(-490, -300, 400.0);
+	glVertex3f(-490, -450, 400.0);
+	glColor3f(1, 1, 1);
+	glVertex3f(245, -445, 399.0);
+	glVertex3f(245, -305, 399.0);
+	glVertex3f(-485, -305, 399.0);
+	glVertex3f(-485, -445, 399.0);
+	glEnd();
+	glColor3i(0, -0, 0);
+	print(200, -350, 10, e);
+	print(200, -385, 10, m);
+	print(200, -420, 10, c);
+	print(-200, -350, 10, r);
+	print(-200, -385, 10, t);
+	print(-200, -420, 10, esc);
 }
 
 void pintaEsfera(ColorPT cl, CoordPT cd) {
@@ -62,7 +112,7 @@ void pintaElipsoide(ColorPT cl, CoordPT cd) {
 	glTranslated(cd.x, cd.y, cd.z);
 	//glRotated(angulo / 3, 1, 1, 0);
 	glScalef(1.2, .9, .6);
-	glutWireSphere(100, 30, 30);
+	glutWireSphere(90, 30, 30);
 	glPopMatrix();
 }
 
@@ -70,16 +120,16 @@ void pintaCubo(ColorPT cl, CoordPT cd) {
 	glPushMatrix();
 	glColor3f(cl.r, cl.g, cl.b);
 	glTranslated(cd.x, cd.y, cd.z);
-	//glRotatef(-angulo / 2, 0, 1, 1);
-	glutWireCube(125);
+	//glRotatef(-angulo / 3, 0, 1, 1);
+	glutWireCube(155);
 	glPopMatrix();
 }
 
 void pintaBotones() {
 	ColorPT c = ColorPT(0, 0, 0);
-	CoordPT esf = CoordPT(375, 300, 10);
-	CoordPT cub = CoordPT(375, 0, 10);
-	CoordPT eli = CoordPT(375, -300, 10);
+	CoordPT esf = CoordPT(375, 350, 10);
+	CoordPT cub = CoordPT(375, 100, 10);
+	CoordPT eli = CoordPT(375, -150, 10);
 	pintaEsfera(c, esf);
 	pintaCubo(c, cub);
 	pintaElipsoide(c, eli);
@@ -87,7 +137,8 @@ void pintaBotones() {
 
 void iniciar(void)
 {
-	glClearColor(1, 1, 1, 1);
+	//glClearColor(1, 1, 1, 1);
+	glClearColor(0.8, 0.8, 0.8, 1);
 	glOrtho(-500, 500, -500, 500, 0, 400);
 	gluLookAt(0, 0, 0, 0, 0, 100, 0, 1, 0);
 }
@@ -98,6 +149,7 @@ void Dibujo(void) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	pintaBarras();
+	pintaCajaTexto();
 	pintaBotones();
 	//Colores y coordenadas de ejemplo
 	ColorPT cl;
@@ -116,6 +168,13 @@ void Dibujo(void) {
 	cd.y = 100;
 	cd.z = 170;
 	pintaElipsoide(cl, cd);
+	cl.r = 0;
+	cl.g = 0;
+	cl.b = 1;
+	cd.x = -100;
+	cd.y = 300;
+	cd.z = 100;
+	pintaCubo(cl, cd);
 	glutSwapBuffers();
 }
 
