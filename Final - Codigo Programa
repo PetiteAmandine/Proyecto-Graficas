@@ -1,0 +1,847 @@
+#include <Windows.h>
+#include "GL/glut.h"
+#include <math.h>
+#include <time.h>
+#include "Metodos.h"
+
+
+GLsizei winWidth = 1000, winHeight = 1000; // Initial display-window size.
+
+//Variables Esfera
+int anguloEsf1[100], anguloEsf2[100];
+CoordPT direccionEsf1[100], direccionEsf2[100];
+float escalaEsf[100];
+ColorPT cEsf;
+float alphaEsf[100];
+int a = 0;
+
+
+//Variables Cubo
+int anguloCub1[100], anguloCub2[100];
+CoordPT direccionCub1[100], direccionCub2[100];
+float escalaCub[100];
+ColorPT cCub;
+float alphaCub[100];
+int  b = 0;
+
+
+//Variables Elipsoide
+int anguloElip1[100], anguloElip2[100];
+CoordPT direccionElip1[100], direccionElip2[100];
+float escalaElip[100];
+ColorPT cEli;
+float alphaEli[100];
+int  d = 0;
+
+
+
+//Mouse y teclas
+int mouseX = 0, mouseY = 0;
+
+
+//Transformaciones
+boolean rota1 = false, escala1 = false, mueve1 = false, colorea1 = false, transparencia1=false;
+boolean rota2 = false, escala2 = false, mueve2 = false, colorea2 = false, transparencia2=false;
+
+
+
+//Transformaciones Escrito
+char e[] = "E        Escalar";
+char m[] = "M       Mover";
+char c[] = "C        Cambiar de color";
+char r[] = "R        Rotar";
+char t[] = "T        Transparente";
+char esc[] = "ESC    Salir";
+
+
+
+//Pinta Caja de Texto
+void pintaCajaTexto() {
+	glColor4f(0, 0, 0, 1);
+	glBegin(GL_QUADS);
+	glVertex3f(250, -450, 3.0);
+	glVertex3f(250, -300, 3.0);
+	glVertex3f(-490, -300, 3.0);
+	glVertex3f(-490, -450, 3.0);
+	glColor4f(1, 1, 1, 1);
+	glVertex3f(245, -445, 2.0);
+	glVertex3f(245, -305, 2.0);
+	glVertex3f(-485, -305, 2.0);
+	glVertex3f(-485, -445, 2.0);
+	glEnd();
+	glColor4i(0, 0, 0, 1);
+	print(200, -350, 1, e);
+	print(200, -385, 1, m);
+	print(200, -420, 1, c);
+	print(-200, -350, 1, r);
+	print(-200, -385, 1, t);
+	print(-200, -420, 1, esc);
+}
+
+
+
+
+
+
+
+//Cubo
+void agregaAnguloCub() {
+	for (int i = 0; i < b; i++) {
+		anguloCub1[i] = 1 + (rand() % 3);
+	}
+}
+
+void agregaTransparenciaCub() {
+	for (int i = 0; i < b; i++) {
+		alphaCub[i] = (rand() % 101);
+		alphaCub[i] = alphaCub[i] / 100;
+	}
+}
+
+void eliminaTransparenciaCub() {
+	for (int i = 0; i < b; i++) {
+		alphaCub[i] = 1;
+	}
+}
+
+void escalarCub() {
+	for (int i = 0; i < b; i++) {
+		escalaCub[i] = 10 + (rand() % 150);
+		escalaCub[i] = escalaCub[i] / 100;
+	}
+}
+
+void AgregaDireccionCub() {
+	for (int i = 0; i < b; i++) {
+		direccionCub2[i].x2 = 10 + (rand() % 100);
+		direccionCub2[i].x2 = direccionCub2[i].x2 / 10;
+
+		direccionCub2[i].y2 = 10 + (rand() % 100);
+		direccionCub2[i].y2 = direccionCub2[i].y2 / 10;
+	}
+}
+
+void eliminaDireccionCub() {
+	for (int i = 0; i < b; i++) {
+
+		direccionCub2[i].x2 = 0;
+
+		direccionCub2[i].y2 = 0;
+	}
+}
+
+void eliminaAnguloCub() {
+	for (int i = 0; i < b; i++) {
+		anguloCub1[i] = 0;
+	}
+}
+
+void pintaCubo(ColorPT cl, CoordPT cd, int angulo, float escala, float alpha) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, alpha);
+	glTranslated(cd.x2 + direccionEsf2->x2, cd.y2 + direccionEsf2->y2, cd.z2);
+	glRotatef(angulo, 1, 1, 1);
+	glScalef(1 * escala, 1 * escala, 1 * escala);
+	glutSolidCube(100);
+	glPopMatrix();
+}
+
+void pintaCuboInicio(ColorPT cl, CoordPT cd) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, 1);
+	glTranslated(cd.x2, cd.y2, cd.z2);
+	glutSolidCube(180);
+	glPopMatrix();
+}
+
+ColorPT colorCubo[100];
+void AgregaCubo() {
+	direccionCub1[b] = randomCoord();
+	colorCubo[b] = randomColor();
+	b = b + 1;
+	if (b == 100) {
+		b = 0;
+	}
+}
+
+void cambiaColorCubo() {
+	for (int i = 0; i < b; i++) {
+		colorCubo[i] = randomColor();
+	}
+}
+
+void dibujaCubos() {
+	for (int i = 0; i < b; i++) {
+		pintaCubo(colorCubo[i], direccionCub1[i], anguloCub2[i], escalaCub[i], alphaCub[i]);
+	}
+}
+
+
+
+//Esfera
+void agregaAnguloEsf() {
+	for (int i = 0; i < a; i++) {
+		anguloEsf1[i] = 1 + (rand() % 3);
+	}
+}
+
+void agregaTransparenciaEsf() {
+	for (int i = 0; i < a; i++) {
+		alphaEsf[i] = (rand() % 101);
+		alphaEsf[i] = alphaEsf[i] / 100;
+	}
+}
+
+void eliminaTransparenciaEsf() {
+	for (int i = 0; i < a; i++) {
+		alphaEsf[i] = 1;
+	}
+}
+
+void escalarEsf() {
+	for (int i = 0; i < a; i++) {
+		escalaEsf[i] = 10 + (rand() % 150);
+		escalaEsf[i] = escalaEsf[i] / 100;
+	}
+}
+
+
+void AgregaDireccionEsf() {
+	for (int i = 0; i < a; i++) {
+		direccionEsf2[i].y2 = 10 + (rand() % 100);
+		direccionEsf2[i].y2 = direccionEsf2[i].y2 / 10;
+
+		direccionEsf2[i].z2 = 10 + (rand() % 100);
+		direccionEsf2[i].z2 = direccionEsf2[i].z2 / 10;
+
+		direccionEsf2[i].x2 = 10 + (rand() % 100);
+		direccionEsf2[i].x2 = direccionEsf2[i].x2 / 10;
+	}
+}
+
+void eliminaDireccionEsf() {
+	for (int i = 0; i < a; i++) {
+
+		direccionEsf2[i].y2 = 0;
+
+		direccionEsf2[i].z2 = 0;
+
+		direccionEsf2[i].x2 = 0;
+	}
+}
+
+void eliminaAnguloEsf() {
+	for (int i = 0; i < a; i++) {
+		anguloEsf1[i] = 0;
+	}
+}
+
+void pintaEsfera(ColorPT cl, CoordPT cd, int angulo, float escala, float alpha) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, alpha);
+	glTranslated(cd.x2 + direccionEsf2->x2, cd.y2 + direccionEsf2->y2, cd.z2 + direccionEsf2->z2);
+	glRotated(angulo, 1, 1, 1);
+	glScalef(1 * escala, 1 * escala, 1 * escala);
+	glutSolidSphere(50, 100, 100);
+	glPopMatrix();
+}
+
+void pintaEsferaInicio(ColorPT cl, CoordPT cd) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, 1);
+	glTranslated(cd.x2, cd.y2, cd.z2);
+	glutSolidSphere(100, 100, 100);
+	glPopMatrix();
+}
+
+ColorPT colorEsfera[100];
+void AgregaEsfera() {
+	direccionEsf1[a] = randomCoord();
+	colorEsfera[a] = randomColor();
+	a = a + 1;
+	if (a == 100) {
+		a = 0;
+	}
+}
+
+void cambiaColorEsfera() {
+	for (int i = 0; i < a; i++) {
+		colorEsfera[i] = randomColor();
+	}
+}
+
+void dibujaEsferas() {
+	for (int i = 0; i < a; i++) {
+		pintaEsfera(colorEsfera[i], direccionEsf1[i], anguloEsf2[i], escalaEsf[i], alphaEsf[i]);
+	}
+}
+
+
+//Elipsoide
+void agregaAnguloElip() {
+	for (int i = 0; i < d; i++) {
+		anguloElip1[i] = 1 + (rand() % 3);
+	}
+}
+
+void agregaTransparenciaEli() {
+	for (int i = 0; i < d; i++) {
+		alphaEli[i] = (rand() % 101);
+		alphaEli[i] = alphaEli[i] / 100;
+	}
+}
+
+void eliminaTransparenciaEli() {
+	for (int i = 0; i < d; i++) {
+		alphaEli[i] = 1;
+	}
+}
+
+void escalarElip() {
+	for (int i = 0; i < d; i++) {
+		escalaElip[i] = 10 + (rand() % 150);
+		escalaElip[i] = escalaElip[i] / 100;
+	}
+}
+
+void AgregaDireccionElip() {
+	for (int i = 0; i < d; i++) {
+		direccionElip2[i].y2 = 10 + (rand() % 100);
+		direccionElip2[i].y2 = direccionElip2[i].y2 / 10;
+
+		direccionElip2[i].z2 = 10 + (rand() % 100);
+		direccionElip2[i].z2 = direccionElip2[i].z2 / 10;
+	}
+}
+
+void eliminaDireccionElip() {
+	for (int i = 0; i < d; i++) {
+
+		direccionElip2[i].y2 = 0;
+
+		direccionElip2[i].z2 = 0;
+	}
+}
+
+void eliminaAnguloElip() {
+	for (int i = 0; i < d; i++) {
+		anguloElip1[i] = 0;
+	}
+}
+
+void pintaElipse(ColorPT cl, CoordPT cd, int angulo, float escala, float alpha) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, alpha);
+	glTranslated(cd.x2, cd.y2 + direccionElip2->y2, cd.z2 + direccionElip2->z2);
+	glRotated(angulo, 1, 1, 0);
+	glScalef(1.3 * escala, .7 * escala, 1 * escala);
+	glutSolidSphere(45, 100, 100);
+	glPopMatrix();
+}
+
+void pintaElipseInicio(ColorPT cl, CoordPT cd) {
+	glPushMatrix();
+	glColor4f(cl.r, cl.g, cl.b, 1);
+	glTranslated(cd.x2, cd.y2, cd.z2);
+	glScalef(1.3, .7, 1);
+	glutSolidSphere(90, 100, 100);
+	glPopMatrix();
+}
+
+
+ColorPT colorElipse[100];
+void AgregaElipse() {
+	direccionElip1[d] = randomCoord();
+	colorElipse[d] = randomColor();
+	d = d + 1;
+	if (d == 100) {
+		d = 0;
+	}
+}
+
+void cambiaColorElipse() {
+	for (int i = 0; i < d; i++) {
+		colorElipse[i] = randomColor();
+	}
+}
+
+void dibujaElipses() {
+	for (int i = 0; i < d; i++) {
+		pintaElipse(colorElipse[i], direccionElip1[i], anguloElip2[i], escalaElip[i], alphaEli[i]);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void pintaBotones() {
+	CoordPT esf = CoordPT(375, 350, 100);
+	CoordPT cub = CoordPT(375, 100, 100);
+	CoordPT eli = CoordPT(375, -150, 100);
+	pintaEsferaInicio(cEsf, esf);
+	pintaCuboInicio(cCub, cub);
+	pintaElipseInicio(cEli, eli);
+}
+
+void iniciar(void) {
+	srand(time(NULL));
+	glClearColor(0.8, 0.8, 0.8, 1);
+	glOrtho(-500, 500, -500, 500, 0, 1000);
+	gluLookAt(0, 0, 0, 0, 0, 100, 0, 1, 0);
+
+	glDisable(GL_DEPTH_TEST);
+	float ambiente[] = { 0.6, 0.6, 0.6, 1 };
+
+	float posicion1[] = { -240, 240, 1000, 1 };
+	float difusion1[] = { 0.1, 0.1, 0.1, 1 };
+	float especular1[] = { 0.1, 0.1, 0.1, 1 };
+
+	for (int i = 0; i < 100; i++) {
+		escalaEsf[i] = 1;
+		escalaCub[i] = 1;
+		escalaElip[i] = 1;
+		alphaCub[i] = 1;
+		alphaEsf[i] = 1;
+		alphaEli[i] = 1;
+	}
+
+
+	float posicion2[] = { -480, -240, 400, .5 };
+	float difusion2[] = { 0.7, 0.7, 0.7, .5 };
+	float especular2[] = { 0.7, 0.7, 0.7, .5 };
+	float ambiente2[] = { 0.3, 0.3, 0.3, .6 };
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_SMOOTH);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, posicion1);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambiente);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, difusion1);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, especular1);
+	glEnable(GL_LIGHT1);
+	glLightfv(GL_LIGHT1, GL_POSITION, posicion2);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, ambiente2);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, difusion2);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, especular2);
+
+	cEsf = { 0.9568, 0.298, 0.2392 };
+	cCub = { 0.4274, 0.8, 0.102 };
+	cEli = { 0.102, 0.6941, 0.8 };
+	   
+}
+
+void Dibujo(void) {
+	glMatrixMode(GL_MODELVIEW);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	pintaBarras();
+	pintaBotones();
+	dibujaEsferas();
+	dibujaCubos();
+	dibujaElipses();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	pintaCajaTexto();
+	glutSwapBuffers();
+}
+
+void teclado(unsigned char tecla, int x4, int y4) {
+	switch (tecla)
+	{
+	case 'e':
+	case 'E':
+		escala1 = true;
+		rota1 = false;
+		mueve1 = false;
+		colorea1 = false;
+		if (!escala2) {
+			escala2 = true;
+		}
+		else {
+			escala2 = false;
+		}
+		break;
+
+	case 't':
+	case 'T':
+		transparencia1 = true;
+		escala1 = false;
+		rota1 = false;
+		mueve1 = false;
+		colorea1 = false;
+		if (!transparencia2) {
+			transparencia2 = true;
+		}
+		else {
+			transparencia2 = false;
+		}
+		break;
+
+	case 'm':
+	case 'M':
+		if (!mueve1) {
+			mueve1 = true;
+			rota1 = false;
+			escala1 = false;
+			colorea1 = false;
+			if (!mueve2) {
+				mueve2 = true;
+			}
+			else {
+				mueve2 = false;
+			}
+		}
+		else {
+			mueve1 = false;
+		}
+		break;
+
+
+	case 'c':
+	case 'C':
+		if (!colorea1) {
+			colorea1 = true;
+			rota1 = false;
+			escala1 = false;
+			mueve1 = false;
+			if (!colorea2) {
+				colorea2 = true;
+			}
+			else {
+				colorea2 = false;
+			}
+		}
+		else {
+			colorea1 = false;
+		}
+		break;
+
+	case 'r':
+	case 'R':
+		rota1 = true;
+		colorea1 = false;
+		escala1 = false;
+		mueve1 = false;
+		if (!rota2) {
+			rota2 = true;
+		}
+		else {
+			rota2 = false;
+		}
+		break;
+
+	case 'a':
+	case 'A':
+		for (int i = 0; i < 100; i++) {
+			anguloEsf1[i] = 0;
+			anguloEsf2[i] = 0;
+			direccionEsf1[i] = CoordPT(0,0,0);
+			direccionEsf2[i]= CoordPT(0, 0, 0);
+			escalaEsf[i] =1;
+
+
+			anguloCub1[i] = 0;
+			anguloCub2[i] = 0;
+			direccionCub1[i] = CoordPT(0, 0, 0);
+			direccionCub2[i] = CoordPT(0, 0, 0);
+			escalaCub[i] = 1;
+
+			anguloElip1[i] = 0;
+			anguloElip2[i] = 0;
+			direccionElip1[i] = CoordPT(0, 0, 0);
+			direccionElip2[i] = CoordPT(0, 0, 0);
+			escalaElip[i] = 1;
+
+
+			alphaCub[i] = 1;
+			alphaEsf[i] = 1;
+			alphaEli[i] = 1;
+		}
+		a = 0;
+
+		b = 0;
+
+		d = 0;
+
+
+		rota1 = false;
+		escala1 = false;
+		mueve1 = false;
+		transparencia1 = false;
+		colorea1 = false;
+		rota2 = false;
+		escala2 = false;
+		mueve2 = false;
+		transparencia2 = false;
+		colorea2 = false;
+		break;
+
+	case 27:
+		exit(0);
+		break;
+	}
+}
+
+
+void OnMouseClick(int button, int state, int x5, int y5) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		int mouseX = x5 - 125;
+		int mouseY = y5 - 150;
+
+		int f = sqrt((mouseX*mouseX) + (mouseY*mouseY));
+		if (f < 100) {
+			if (rota1 || escala1 || colorea1 || mueve1 || transparencia1) {
+
+				if (rota1) {
+					if (rota2) {
+						agregaAnguloEsf();
+						rota1 = false;
+					}
+					else {
+						eliminaAnguloEsf();
+						rota1 = false;
+					}
+				}
+				if (escala1) {
+					escalarEsf();
+					escala1 = false;
+
+				}
+				if (colorea1) {
+					cambiaColorEsfera();
+					colorea1 = false;
+				}
+
+				if (mueve1) {
+					if (mueve2) {
+						AgregaDireccionEsf();
+						mueve1 = false;
+					}
+					else {
+						eliminaDireccionEsf();
+						mueve1 = false;
+					}
+				}
+				if (transparencia1) {
+					if (transparencia2) {
+						agregaTransparenciaEsf();
+						transparencia1 = false;
+					}
+					else {
+						eliminaTransparenciaEsf();
+						transparencia1 = false;
+					}
+				}
+
+			}
+			else {
+				AgregaEsfera();
+			}
+		}
+		double lado = 90;
+		mouseX = x5;
+		mouseY = y5;
+		if (mouseX > (125 - lado) && mouseX < (125 + lado) && mouseY< (400 + lado) && mouseY>(400 - lado)) {
+			if (rota1 || escala1 || colorea1 || mueve1 || transparencia1) {
+
+				if (rota1) {
+					if (rota2) {
+						agregaAnguloCub();
+						rota1 = false;
+					}
+					else {
+						eliminaAnguloCub();
+						rota1 = false;
+					}
+				}
+				if (escala1) {
+					escalarCub();
+					escala1 = false;
+
+				}
+				if (colorea1) {
+					cambiaColorCubo();
+					colorea1 = false;
+				}
+				if (mueve1) {
+					if (mueve2) {
+						AgregaDireccionCub();
+						mueve1 = false;
+					}
+					else {
+						eliminaDireccionCub();
+						mueve1 = false;
+					}
+				}
+				if (transparencia1) {
+					if (transparencia2) {
+						agregaTransparenciaCub();
+						transparencia1 = false;
+					}
+					else {
+						eliminaTransparenciaCub();
+						transparencia1 = false;
+					}
+				}
+
+			}
+			else {
+				AgregaCubo();
+			}
+		}
+
+		mouseX = x5 - 125;
+		mouseY = y5 - 650;
+		f = sqrt(((mouseX / 1.3)*(mouseX / 1.3)) + ((mouseY / 0.7)*(mouseY / 0.7)));
+		if (f < 90) {
+			if (rota1 || escala1 || colorea1 || mueve1 || transparencia1) {
+
+				if (rota1) {
+					if (rota2) {
+						agregaAnguloElip();
+						rota1 = false;
+					}
+					else {
+						eliminaAnguloElip();
+						rota1 = false;
+					}
+				}
+				if (escala1) {
+					escalarElip();
+					escala1 = false;
+
+				}
+				if (colorea1) {
+					cambiaColorElipse();
+					colorea1 = false;
+				}
+				if (mueve1) {
+					if (mueve2) {
+						AgregaDireccionElip();
+						mueve1 = false;
+					}
+					else {
+						eliminaDireccionElip();
+						mueve1 = false;
+					}
+				}
+				if (transparencia1) {
+					if (transparencia2) {
+						agregaTransparenciaEli();
+						transparencia1 = false;
+					}
+					else {
+						eliminaTransparenciaEli();
+						transparencia1 = false;
+					}
+				}
+
+			}
+			else {
+				AgregaElipse();
+			}
+		}
+	}
+}
+
+boolean limite = false;
+int dato1;
+void actualiza() {
+	for (int i = 0; i < b; i++) {
+		anguloCub2[i] = anguloCub2[i] + anguloCub1[i];
+	}
+	for (int i = 0; i < a; i++) {
+		anguloEsf2[i] = anguloEsf2[i] + anguloEsf1[i];
+	}
+	for (int i = 0; i < d; i++) {
+		anguloElip2[i] = anguloElip2[i] + anguloElip1[i];
+	}
+
+
+	for (int i = 0; i < a; i++) {
+		if ((480 - (50 * escalaEsf[i])) < (direccionEsf1[i].y2) && direccionEsf2[i].y2 >= 0) {
+			direccionEsf2[i].y2 = -direccionEsf2[i].y2;
+		}
+		if ((-240 + (50 * escalaEsf[i])) >(direccionEsf1[i].y2 ) && direccionEsf2[i].y2 <= 0) {
+			direccionEsf2[i].y2 = -direccionEsf2[i].y2;
+		}
+		if ((980 - (50 * escalaEsf[i])) < (direccionEsf1[i].z2) && direccionEsf2[i].z2 >= 0) {
+			direccionEsf2[i].z2 = -direccionEsf2[i].z2;
+		}
+		if ((20 + (50 * escalaEsf[i])) > (direccionEsf1[i].z2 ) && direccionEsf2[i].z2 <= 0) {
+			direccionEsf2[i].z2 = -direccionEsf2[i].z2;
+		}
+		if ((240 - (50 * escalaEsf[i])) < (direccionEsf1[i].x2) && direccionEsf2[i].x2 >= 0) {
+			direccionEsf2[i].x2 = -direccionEsf2[i].x2;
+		}
+		if ((-480 + (50 * escalaEsf[i])) > (direccionEsf1[i].x2 ) && direccionEsf2[i].x2 <= 0) {
+			direccionEsf2[i].x2 = -direccionEsf2[i].x2;
+		}
+		direccionEsf1[i] = direccionEsf1[i] + direccionEsf2[i];
+	}
+
+	for (int i = 0; i < b; i++) {
+		if ((240 - (60* escalaCub[i])) < (direccionCub1[i].x2) && direccionCub2[i].x2 >= 0) {
+			direccionCub2[i].x2 = -direccionCub2[i].x2;
+		}
+		if ((-480 + (60 * escalaCub[i])) > (direccionCub1[i].x2) && direccionCub2[i].x2 <= 0) {
+			direccionCub2[i].x2 = -direccionCub2[i].x2;
+		}
+		if ((-240 + (60 * escalaCub[i])) > (direccionCub1[i].y2) && direccionCub2[i].y2 <= 0) {
+			direccionCub2[i].y2 = -direccionCub2[i].y2;
+		}
+		if ((480 - (60 * escalaCub[i])) < (direccionCub1[i].y2) && direccionCub2[i].y2 >= 0) {
+			direccionCub2[i].y2 = -direccionCub2[i].y2;
+		}
+		direccionCub1[i] = direccionCub1[i] + direccionCub2[i];
+	}
+
+
+	for (int i = 0; i < d; i++) {
+		if (480 - (45 * escalaCub[i]*1.3) < (direccionElip1[i].y2) && direccionElip2[i].y2 >= 0) {
+			direccionElip2[i].y2 = -direccionElip2[i].y2;
+		}
+		if (-240 + (45 * escalaCub[i] * 1.3) > (direccionElip1[i].y2) && direccionElip2[i].y2 <= 0) {
+			direccionElip2[i].y2 = -direccionElip2[i].y2;
+		}
+		if (980 - (45 * escalaCub[i] * 1.3) < (direccionElip1[i].z2) && direccionElip2[i].z2 >= 0) {
+			direccionElip2[i].z2 = -direccionElip2[i].z2;
+		}
+		if (20 + (45 * escalaCub[i] * 1.3) > (direccionElip1[i].z2) && direccionElip2[i].z2 <= 0) {
+			direccionElip2[i].z2 = -direccionElip2[i].z2;
+		}
+		direccionElip1[i] = direccionElip1[i] + direccionElip2[i];
+	}
+
+
+	glutPostRedisplay();
+}
+
+
+void main(int argc, char** argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+	glutInitWindowPosition(0, 0);
+	glutInitWindowSize(1000, 1000);
+	glutCreateWindow("Proyecto"); 
+	/*angulo = 45;*/
+	iniciar();
+	glutDisplayFunc(Dibujo);
+	glutIdleFunc(actualiza);
+	glutKeyboardFunc(teclado);
+	glutMouseFunc(OnMouseClick);
+	glutMainLoop();
+}
