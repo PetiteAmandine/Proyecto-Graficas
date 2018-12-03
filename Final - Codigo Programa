@@ -139,7 +139,7 @@ void eliminaAnguloCub() {
 void pintaCubo(ColorPT cl, CoordPT cd, int angulo, float escala, float alpha) {
 	glPushMatrix();
 	glColor4f(cl.r, cl.g, cl.b, alpha);
-	glTranslated(cd.x2 + direccionEsf2->x2, cd.y2 + direccionEsf2->y2, cd.z2);
+	glTranslated(cd.x2 + direccionCub2->x2, cd.y2 + direccionCub2->y2, cd.z2);
 	glRotatef(angulo, 1, 1, 1);
 	glScalef(1 * escala, 1 * escala, 1 * escala);
 	glutSolidCube(100);
